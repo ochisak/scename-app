@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import Link from "next/link"; // ✅ 利用規約へのリンク用
+import Link from "next/link";
 
 export default function Home() {
   const [nickname, setNickname] = useState("");
@@ -12,11 +12,11 @@ export default function Home() {
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [agreed, setAgreed] = useState(false); // ✅ 同意チェック用
+  const [agreed, setAgreed] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!agreed) return; // ✅ チェックされてなければ中止
+    if (!agreed) return;
     setLoading(true);
 
     const mergedAnswers = answers.map((a, i) =>
@@ -32,6 +32,11 @@ export default function Home() {
     const data = await res.json();
     setResult(data.result || "エラーが発生しました");
     setLoading(false);
+
+    // ✅ 追加処理：診断履歴を localStorage に保存（任意機能）
+    const history = JSON.parse(localStorage.getItem("history") || "[]");
+    history.unshift({ nickname, age, gender, timestamp: Date.now() });
+    localStorage.setItem("history", JSON.stringify(history));
   };
 
   const handleShare = () => {
@@ -236,7 +241,6 @@ export default function Home() {
           </div>
         ))}
 
-        {/* ✅ 利用規約への同意 */}
         <label className="block text-sm text-gray-700 mb-4">
           <input
             type="checkbox"

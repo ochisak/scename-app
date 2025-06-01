@@ -13,29 +13,22 @@ export default function PlayPage() {
   const [responderGender, setResponderGender] = useState("");
 
   useEffect(() => {
-    if (!id) return;
-    const stored = localStorage.getItem(`scenario-${id}`);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const scenes = parsed.story.split(/Scene \d+｜/).slice(1).map((s, i) => {
-        const [body, qBlock] = s.split(`Q${i + 1}.`);
-        const [questionLine, ...rest] = qBlock?.trim().split("\n") || [];
-        const options = rest
-  .filter(line => /^\d+\./.test(line))
-  .map(line => line.replace(/^\d+\.\s*/, "").replace(/^「|」$/g, ""))
-  .filter(option => option !== "フリーワードで答える"); // ← この行を追加！
- 
-        return {
-          full: s.trim(),
-          description: body?.trim(),
-          question: questionLine?.trim(),
-          options,
-        };
+  if (!id) return;
+
+  fetch(`/api/load?id=${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      setScenario({
+        story: data.story,
+        readerName: data.nickname,
+        scenes: parseStoryToScenes(data.story),
       });
-      setScenario({ ...parsed, scenes });
-      setAnswers(Array(scenes.length).fill({ selected: null, free: "" }));
-    }
-  }, [id]);
+      setAnswers(data.responses || []);
+    })
+    .catch(() => {
+      setScenario(null);
+    });
+}, [id]);
 
   const handleOptionChange = (sceneIndex, optionIndex) => {
     const updated = [...answers];
