@@ -12,13 +12,21 @@ export default async function handler(req, res) {
 
   const { id, story, readerName, age, gender } = req.body;
 
-  console.log("Received request body:", req.body); // デバッグログ
+  console.log("📥 Received request body:", req.body);
 
-  // 🔍 タイトル抽出処理（本文から）
-  const titleMatch = story?.match(/【タイトル】["「]?(.*?)["」]?\n?/);
-  const title = titleMatch ? titleMatch[1].trim() : null;
+  // 🔍 タイトル抽出（形式のゆらぎに対応）
+  const titleMatch = story?.match(/(?:【タイトル】|タイトル[:：]?)\s*["「]?(.*?)["」]?\s*(?:\n|$)/i);
+  const extractedTitle = titleMatch ? titleMatch[1].trim() : null;
 
-  if (!id || !title || !story || !readerName) {
+  // ✅ fallback タイトル（ログに明示）
+  const fallbackTitle = `タイトル未取得 - ${new Date().toISOString().split("T")[0]}`;
+  const title = extractedTitle || fallbackTitle;
+
+  console.log("🔍 Extracted or fallback title:", title);
+
+  // ✅ 必須項目チェック（title は fallback で保証済）
+  if (!id || !story || !readerName) {
+    console.error("❌ Missing required fields", { id, storyExists: !!story, readerName });
     return res.status(400).json({ error: "Missing required fields" });
   }
 
