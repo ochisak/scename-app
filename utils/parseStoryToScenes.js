@@ -5,13 +5,14 @@ export function parseStoryToScenes(story) {
   return scenes.map((block, index) => {
     const lines = block.trim().split("\n").filter(Boolean);
 
-    // 1行目をタイトルとして取得し、以降は description に含めない
-    const sceneTitleMatch = lines[0];
-    const sceneTitle = sceneTitleMatch || `シーン${index + 1}`;
+    const sceneTitle = lines[0] || `シーン${index + 1}`;
 
-    const questionLine = lines.find((line) => /^Q\d+\./.test(line));
+    // 柔軟にQ形式を拾う（例：Q1.／Qn.／Q:など）
+    const questionLine = lines.find((line) =>
+      /^Q(?:\d+|n|:)\.?/.test(line)
+    );
     const question = questionLine
-      ? questionLine.replace(/^Q\d+\.\s*/, "").trim()
+      ? questionLine.replace(/^Q(?:\d+|n|:)\.?\s*/, "").trim()
       : `質問${index + 1}`;
 
     const options = lines
@@ -21,8 +22,8 @@ export function parseStoryToScenes(story) {
     const description = lines
       .filter(
         (line, i) =>
-          i !== 0 && // ← ここで1行目（タイトル）を除外
-          !/^Q\d+\./.test(line) &&
+          i !== 0 &&
+          !/^Q(?:\d+|n|:)\.?/.test(line) &&
           !/^[1-4]\.\s*/.test(line)
       )
       .join("\n");
