@@ -2,8 +2,11 @@ import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 
+// OpenAIクライアントのタイムアウトを60秒未満に設定（Vercel Pro制限対応）
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: false,
+  timeout: 55000, // ms 単位、60秒制限対策
 });
 
 const supabase = createClient(
@@ -18,6 +21,7 @@ export default async function handler(req, res) {
 
   const {
     scenarioId,
+    title,
     story,
     readerName,
     responses,
@@ -34,15 +38,14 @@ export default async function handler(req, res) {
   }
 
   const responseTexts = safeResponses
-  .map((r, i) => {
-    if (r.free)
-      return `Scene ${i + 1}：自由回答 → 「${r.free}」`;
-    if (typeof r.selected === "number")
-      return `Scene ${i + 1}：選択肢${r.selected + 1}`;
-    return `Scene ${i + 1}：未回答`;
-  })
-  .join("\n");
-
+    .map((r, i) => {
+      if (r.free)
+        return `Scene ${i + 1}：自由回答 → 「${r.free}」`;
+      if (typeof r.selected === "number")
+        return `Scene ${i + 1}：選択肢${r.selected + 1}`;
+      return `Scene ${i + 1}：未回答`;
+    })
+    .join("\n");
 
   const prompt = `
 あなたは恋愛診断AIです。
@@ -84,10 +87,10 @@ ${responseTexts}
 > 回答者の発言: 「（回答内容を自然な口調で）」  
 💬 **診断コメント：**  
 - 回答のセリフが**シーンに対してどう作用したか**を、恋愛観の観点から鋭く、少し面白く分析  
-- 「ズレた」「惜しい」「一歩踏み出せてる」など感情表現もOK
-- 回答のセリフに対し、恋愛観の視点からツッコミを交えた分析
-- ユーモアや比喩、軽妙な言葉選びを使って、読者がクスッと笑えるように
-- 必ずどこかに"意外性"や"クセ"のある指摘を含めること
+- 「ズレた」「惜しい」「一歩踏み出せてる」など感情表現もOK  
+- 回答のセリフに対し、恋愛観の視点からツッコミを交えた分析  
+- ユーモアや比喩、軽妙な言葉選びを使って、読者がクスッと笑えるように  
+- 必ずどこかに"意外性"や"クセ"のある指摘を含めること  
 
 🎯 **攻略度：★☆☆☆☆ ～ ★★★★★** ※厳しめの採点でもOK
 
@@ -96,20 +99,20 @@ ${responseTexts}
 ## 🎯最終攻略診断：**XX％（一言で総括）**
 
 ### 🔍講評まとめ：
-- 回答内容から読み取れる**最適な3項目**を自動でラベル付けし、それぞれ★評価（1〜5）してください。
-- 固定項目にせず、「表現センス」「包容力」「読み合い力」など、文脈に応じた評価軸を命名し出力すること。
+- 回答内容から読み取れる**最適な3項目**を自動でラベル付けし、それぞれ★評価（1〜5）してください。  
+- 固定項目にせず、「表現センス」「包容力」「読み合い力」など、文脈に応じた評価軸を命名し出力すること。  
 
-📝 総評（300文字以内）：
+📝 総評（300文字以内）：  
 全体としてどこが良かったか、何が足りなかったかを端的に分析し、面白みのある文章で仕上げてください。  
 笑いのセンス・共感力・言葉選びなどを通じて、恋愛観のマッチ度を見抜くこと。
 
-アドバイス：
+アドバイス：  
 ―このストーリーの主人公（${readerName}）を落とすにはどうしたらいいか、1〜2点だけ的確に伝えてください。  
-―なぜなら、主人公は「〜」という価値観や傾向を持っていると読み取れるからです。
+―なぜなら、主人公は「〜」という価値観や傾向を持っていると読み取れるからです。  
 
 💡次はあなたが誰かを落としてみる番。  
 #シナミー
-`;
+  `.trim();
 
   try {
     const completion = await openai.chat.completions.create({
@@ -128,6 +131,7 @@ ${responseTexts}
       {
         id,
         scenario_id: scenarioId,
+        title,
         story,
         reader_name: readerName ?? null,
         responder_name: responderName ?? null,

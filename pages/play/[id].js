@@ -107,6 +107,7 @@ export default function PlayPage({ id }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           scenarioId: id,
+          title: scenario.title, // 👈 追加
           story: scenario.story,
           readerName: scenario.readerName,
           responses: answers,
