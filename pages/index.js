@@ -43,7 +43,7 @@ export default function Home() {
     const id = uuidv4();
 
     // タイトル抽出（全角コロン対応・失敗時は処理中断）
-    const match = result.match(/タイトル[:：](.+?)(\n|$)/);
+    const match = result.match(/(?:タイトル[:：]|【タイトル】)(.+?)(\n|$)/);
     const title = match ? match[1].trim() : "";
 
     if (!title || title === "タイトル未取得") {
