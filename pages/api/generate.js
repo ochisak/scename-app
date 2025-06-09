@@ -1,3 +1,4 @@
+// pages/api/generate.js
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -47,7 +48,7 @@ ${answers.map((a, i) => `Q${i + 1}: ${a.join(" / ")}`).join("\n")}
 ---
 
 【ストーリー構成】
-タイトル：○○○（情景や関係性が連想されるもの）
+タイトル：○○○（情景や関係性が連想されるもの）←※この行は必ず含めてください（後工程でタイトルを抽出するため）
 
 Scene 1｜◯◯◯（初対面や出会いのきっかけ）  
 Scene 2｜  
@@ -102,7 +103,7 @@ Qn. ${readerName}が「〜」と言ってきたとき、あなたはどう返す
 ---
 
 これらをふまえ、読者が自然に惹かれるような全5シーンの恋愛ストーリーを生成してください。
-`;
+  `.trim();
 
   try {
     const completion = await openai.chat.completions.create({

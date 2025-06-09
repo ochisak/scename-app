@@ -15,7 +15,6 @@ export default function Home() {
   const [agreed, setAgreed] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreed) return;
@@ -43,9 +42,14 @@ export default function Home() {
 
     const id = uuidv4();
 
-    // タイトル抽出（"タイトル：〜"の形式を想定）
-    const match = result.match(/タイトル：(.+?)\n/);
-    const title = match ? match[1].trim() : "タイトル未取得";
+    // タイトル抽出（全角コロン対応・失敗時は処理中断）
+    const match = result.match(/タイトル[:：](.+?)(\n|$)/);
+    const title = match ? match[1].trim() : "";
+
+    if (!title || title === "タイトル未取得") {
+      alert("タイトルが見つかりませんでした。もう一度シナリオを生成してください。");
+      return;
+    }
 
     const storyData = {
       id,
@@ -89,98 +93,97 @@ export default function Home() {
   };
 
   const questions = [
-  {
-    text: "Q1. 「この人ちょっと気になるかも」と思う瞬間は？",
-    options: [
-      "自分の話にちゃんと笑ってくれたとき",
-      "さりげなく気づかいをしてくれたとき",
-      "人への接し方に優しさがにじんでいたとき",
-      "ふとした表情がタイプだったとき",
-    ],
-  },
-  {
-    text: "Q2. 相手にされてキュンとするのはどんな瞬間？",
-    options: [
-      "些細な変化にすぐ気づいてくれる",
-      "軽く冗談を交えつつ距離を縮めてくる",
-      "リードしてくれて安心感を与えてくれる",
-      "言葉より行動で優しさを見せてくれる",
-    ],
-  },
-  {
-    text: "Q3. 初デートで「アリかも」と感じるのは？",
-    options: [
-      "居酒屋やバルでゆるく飲みトーク",
-      "カフェでじっくり会話を楽しむ",
-      "共通の趣味に付き合ってくれる",
-      "ちゃんとプランを考えてくれてた",
-    ],
-  },
-  {
-    text: "Q4. LINEや通話でグッときたやり取りは？",
-    options: [
-      "気づかいのあるメッセージをくれた",
-      "テンポよく会話が続いた",
-      "くだらない話で笑わせてくれた",
-      "不意に素直な気持ちを伝えてくれた",
-    ],
-  },
-  {
-    text: "Q5. 恋愛で「これは無理かも」と感じるのは？",
-    options: [
-      "上から目線で話してくる",
-      "自分語りばかりで共感がない",
-      "モテ自慢や過去の恋愛を話してくる",
-      "すぐ他人と比較してくる",
-    ],
-  },
-  {
-    text: "Q6. 理想的な恋人との関係性は？",
-    options: [
-      "自然体でいられる空気感",
-      "対等に尊重し合える関係",
-      "ふざけ合えるけど支え合える",
-      "安心感と刺激が両立してる",
-    ],
-  },
-  {
-    text: "Q7. 恋人関係の“始まり方”として理想なのは？",
-    options: [
-      "じっくり距離を縮めて自然に始まる",
-      "ある日ふと、気持ちを言葉にされる",
-      "はっきり告白してくれる",
-      "曖昧な関係から進展していく",
-    ],
-  },
-  {
-    text: "Q8. 恋人にしてほしいこと／されたいことは？",
-    options: [
-      "感情の起伏に気づいて寄り添ってくれる",
-      "趣味や好きなことに興味を持ってくれる",
-      "疲れてるときにそっと気づかってくれる",
-      "お互いの時間や距離感を大切にしてくれる",
-    ],
-  },
-  {
-    text: "Q9. あなたの恋愛スタイルに一番近いのは？",
-    options: [
-      "相手のペースに合わせるのが楽",
-      "自分から積極的に動くタイプ",
-      "距離を詰められると慎重になる",
-      "つい感情が重くなりがち",
-    ],
-  },
-  {
-    text: "Q10. ストーリーの中で“どんな自分”を見せたい？",
-    options: [
-      "明るく見えて実は繊細なところ",
-      "芯が強くて真っ直ぐな想い",
-      "臆病だけど一歩踏み出したい姿勢",
-      "ふざけつつも誠実な内面",
-    ],
-  },
-];
-
+    {
+      text: "Q1. 「この人ちょっと気になるかも」と思う瞬間は？",
+      options: [
+        "自分の話にちゃんと笑ってくれたとき",
+        "さりげなく気づかいをしてくれたとき",
+        "人への接し方に優しさがにじんでいたとき",
+        "ふとした表情がタイプだったとき",
+      ],
+    },
+    {
+      text: "Q2. 相手にされてキュンとするのはどんな瞬間？",
+      options: [
+        "些細な変化にすぐ気づいてくれる",
+        "軽く冗談を交えつつ距離を縮めてくる",
+        "リードしてくれて安心感を与えてくれる",
+        "言葉より行動で優しさを見せてくれる",
+      ],
+    },
+    {
+      text: "Q3. 初デートで「アリかも」と感じるのは？",
+      options: [
+        "居酒屋やバルでゆるく飲みトーク",
+        "カフェでじっくり会話を楽しむ",
+        "共通の趣味に付き合ってくれる",
+        "ちゃんとプランを考えてくれてた",
+      ],
+    },
+    {
+      text: "Q4. LINEや通話でグッときたやり取りは？",
+      options: [
+        "気づかいのあるメッセージをくれた",
+        "テンポよく会話が続いた",
+        "くだらない話で笑わせてくれた",
+        "不意に素直な気持ちを伝えてくれた",
+      ],
+    },
+    {
+      text: "Q5. 恋愛で「これは無理かも」と感じるのは？",
+      options: [
+        "上から目線で話してくる",
+        "自分語りばかりで共感がない",
+        "モテ自慢や過去の恋愛を話してくる",
+        "すぐ他人と比較してくる",
+      ],
+    },
+    {
+      text: "Q6. 理想的な恋人との関係性は？",
+      options: [
+        "自然体でいられる空気感",
+        "対等に尊重し合える関係",
+        "ふざけ合えるけど支え合える",
+        "安心感と刺激が両立してる",
+      ],
+    },
+    {
+      text: "Q7. 恋人関係の“始まり方”として理想なのは？",
+      options: [
+        "じっくり距離を縮めて自然に始まる",
+        "ある日ふと、気持ちを言葉にされる",
+        "はっきり告白してくれる",
+        "曖昧な関係から進展していく",
+      ],
+    },
+    {
+      text: "Q8. 恋人にしてほしいこと／されたいことは？",
+      options: [
+        "感情の起伏に気づいて寄り添ってくれる",
+        "趣味や好きなことに興味を持ってくれる",
+        "疲れてるときにそっと気づかってくれる",
+        "お互いの時間や距離感を大切にしてくれる",
+      ],
+    },
+    {
+      text: "Q9. あなたの恋愛スタイルに一番近いのは？",
+      options: [
+        "相手のペースに合わせるのが楽",
+        "自分から積極的に動くタイプ",
+        "距離を詰められると慎重になる",
+        "つい感情が重くなりがち",
+      ],
+    },
+    {
+      text: "Q10. ストーリーの中で“どんな自分”を見せたい？",
+      options: [
+        "明るく見えて実は繊細なところ",
+        "芯が強くて真っ直ぐな想い",
+        "臆病だけど一歩踏み出したい姿勢",
+        "ふざけつつも誠実な内面",
+      ],
+    },
+  ];
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -263,23 +266,22 @@ export default function Home() {
         ))}
 
         <label className="block text-sm text-gray-700 mb-4">
-  <input
-    type="checkbox"
-    checked={agreed}
-    onChange={() => setAgreed(!agreed)}
-    className="mr-2"
-  />
-  利用規約に同意する（
-  <button
-    type="button"
-    onClick={() => setShowTermsModal(true)}
-    className="underline text-blue-600 hover:text-blue-800"
-  >
-    内容を読む
-  </button>
-  ）
-</label>
-
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={() => setAgreed(!agreed)}
+            className="mr-2"
+          />
+          利用規約に同意する（
+          <button
+            type="button"
+            onClick={() => setShowTermsModal(true)}
+            className="underline text-blue-600 hover:text-blue-800"
+          >
+            内容を読む
+          </button>
+          ）
+        </label>
 
         <button
           type="submit"
@@ -289,41 +291,23 @@ export default function Home() {
           {loading ? "シナリオ生成中..." : "シナリオ生成"}
         </button>
       </form>
-　　　{loading && (
-  <div className="flex flex-col items-center mt-6 text-blue-600">
-    <svg
-      className="animate-spin h-6 w-6 mb-2 text-blue-600"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v8H4z"
-      ></path>
-    </svg>
-    <p className="text-sm font-medium">シナリオ生成中... 少々お待ちください</p>
-  </div>
-)}
+
+      {loading && (
+        <div className="flex flex-col items-center mt-6 text-blue-600">
+          <svg className="animate-spin h-6 w-6 mb-2 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          <p className="text-sm font-medium">シナリオ生成中... 少々お待ちください</p>
+        </div>
+      )}
 
       {result && (
         <div className="mt-8 p-4 border rounded bg-gray-50 whitespace-pre-line">
           <h2 className="font-bold mb-2">生成されたシナリオ：</h2>
           <div className="mb-4">{result}</div>
           <div className="pt-4 border-t mt-6">
-            <button
-              onClick={handleShare}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-            >
+            <button onClick={handleShare} className="mt-4 px-4 py-2 bg-green-600 text-white rounded">
               URLを発行する
             </button>
           </div>
@@ -334,28 +318,20 @@ export default function Home() {
         <div className="mt-4 p-4 bg-blue-50 border rounded">
           <p className="mb-2 font-semibold">このURLを、回答してほしい相手に送ってね：</p>
           <div className="flex items-center">
-            <input
-              type="text"
-              value={shareUrl}
-              readOnly
-              className="border p-2 flex-1 mr-2"
-            />
-            <button
-              onClick={handleCopy}
-              className="bg-blue-600 text-white px-3 py-1 rounded"
-            >
+            <input type="text" value={shareUrl} readOnly className="border p-2 flex-1 mr-2" />
+            <button onClick={handleCopy} className="bg-blue-600 text-white px-3 py-1 rounded">
               コピー
             </button>
           </div>
           {copied && <p className="text-green-600 mt-2">コピーしました！</p>}
         </div>
       )}
-      {showTermsModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 rounded shadow-lg relative">
-      <h1 className="text-2xl font-bold text-pink-600 mb-6">利用規約・免責事項</h1>
 
-      <section className="mb-6">
+      {showTermsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 rounded shadow-lg relative">
+            <h1 className="text-2xl font-bold text-pink-600 mb-6">利用規約・免責事項</h1>
+            <section className="mb-6">
         <h2 className="text-xl font-semibold mb-2">第1条（適用）</h2>
         <p>
           本利用規約は、ScenaMe（以下「本サービス」）が提供するAI恋愛診断サービスに関する一切の利用に適用されます。
@@ -424,19 +400,14 @@ export default function Home() {
       <footer className="text-sm text-gray-500 mt-10">
         最終更新日：2025年5月25日
       </footer>
-
-      <div className="text-right mt-8">
-        <button
-          onClick={() => setShowTermsModal(false)}
-          className="text-blue-600 underline text-sm"
-        >
-          ← 入力画面に戻る
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+            <div className="text-right mt-8">
+              <button onClick={() => setShowTermsModal(false)} className="text-blue-600 underline text-sm">
+                ← 入力画面に戻る
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
