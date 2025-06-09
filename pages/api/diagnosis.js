@@ -2,13 +2,14 @@ import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 
-// OpenAIクライアントのタイムアウトを60秒未満に設定（Vercel Pro制限対応）
+// OpenAIクライアント（タイムアウト制限つき）
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: false,
-  timeout: 55000, // ms 単位、60秒制限対策
+  timeout: 55000, // ms（Vercel制限に対応）
 });
 
+// Supabaseクライアント（サービスロールキー使用）
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -115,16 +116,23 @@ ${responseTexts}
   `.trim();
 
   try {
+    console.log("🧠 診断生成 開始");
+    console.time("🕒 GPT生成時間");
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.85,
+      max_tokens: 1600, // ← タイムアウト防止用
     });
+
+    console.timeEnd("🕒 GPT生成時間");
 
     const diagnosis = completion.choices?.[0]?.message?.content?.trim();
 
     if (!diagnosis) {
-      throw new Error("診断結果が空です");
+      console.error("⚠️ 診断結果が空です");
+      return res.status(500).json({ error: "診断結果が空です" });
     }
 
     const { error } = await supabase.from("diagnoses").insert([
@@ -147,9 +155,11 @@ ${responseTexts}
       return res.status(500).json({ error: "診断の保存に失敗しました" });
     }
 
-    res.status(200).json({ result: diagnosis, id });
+    console.log("✅ 診断生成＆保存 成功:", id);
+    return res.status(200).json({ result: diagnosis, id });
+
   } catch (error) {
     console.error("❌ OpenAI API Error:", error);
-    res.status(500).json({ error: "診断の生成に失敗しました" });
+    return res.status(500).json({ error: "診断の生成に失敗しました" });
   }
 }
